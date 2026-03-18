@@ -1,27 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // ===== НАСТРОЙКИ TELEGRAM =====
-    // ПОЛУЧИТЕ ЗДЕСЬ:
-    // 1. Токен бота: https://t.me/BotFather (создайте бота и скопируйте токен)
-    // 2. Chat ID: напишите боту @userinfobot и скопируйте ваш ID
-    let TELEGRAM_TOKEN = '';
-    let CHAT_ID = '';
-
-    async function loadConfig() {
-    try {
-        // Пытаемся загрузить локальный конфиг (для разработки)
-        const response = await fetch('config.json');
-        const config = await response.json();
-        TELEGRAM_TOKEN = config.TELEGRAM_TOKEN;
-        CHAT_ID = config.CHAT_ID;
-    } catch (e) {
-        // В продакшене используем переменные окружения или прокси
-        console.log('Используется прокси-сервер для отправки');
-        // Здесь код для работы через прокси
-    }
-}
-
-loadConfig();
-    
     // ===== ЭЛЕМЕНТЫ =====
     const modal = document.getElementById('bookingModal');
     const openModalBtns = document.querySelectorAll('.open-modal');
@@ -30,6 +7,50 @@ loadConfig();
     const submitBtn = document.getElementById('submitBtn');
     const formStatus = document.getElementById('formStatus');
     const navLinks = document.querySelectorAll('.nav_links a, .footer-nav .nav_links a, .works-btn a[href^="#"]');
+    
+    // ===== ЗАГРУЗКА КОНФИГА =====
+    let TELEGRAM_TOKEN = '';
+    let CHAT_ID = '';
+    let configLoaded = false;
+
+    async function loadConfig() {
+        try {
+            // Пытаемся загрузить config.js (он уже загружен как скрипт)
+            if (typeof CONFIG !== 'undefined') {
+                TELEGRAM_TOKEN = CONFIG.TELEGRAM_TOKEN;
+                CHAT_ID = CONFIG.CHAT_ID;
+                configLoaded = true;
+                console.log('✅ Конфиг загружен из глобальной переменной');
+            } else {
+                // Пробуем загрузить config.json
+                const response = await fetch('config.json');
+                const config = await response.json();
+                TELEGRAM_TOKEN = config.TELEGRAM_TOKEN;
+                CHAT_ID = config.CHAT_ID;
+                configLoaded = true;
+                console.log('✅ Конфиг загружен из config.json');
+            }
+        } catch (e) {
+            console.warn('⚠️ Конфиг не загружен, используется демо-режим');
+            console.log('📝 Создайте config.js или config.json с вашими токенами');
+        }
+    }
+
+    // Загружаем конфиг перед инициализацией
+    (async function init() {
+        await loadConfig();
+        
+        // Проверяем настройки после загрузки
+        if (!TELEGRAM_TOKEN || !CHAT_ID || TELEGRAM_TOKEN === '' || CHAT_ID === '') {
+            console.warn('⚠️ Telegram не настроен! Заявки не будут отправляться.');
+            console.log('📝 Инструкция:');
+            console.log('1. Напишите @BotFather в Telegram, создайте бота');
+            console.log('2. Получите токен и вставьте в config.js');
+            console.log('3. Напишите @userinfobot, получите ваш Chat ID');
+        } else {
+            console.log('✅ Telegram настроен, заявки будут приходить в бота');
+        }
+    })();
     
     // ===== МОДАЛЬНОЕ ОКНО =====
     function openModal() {
@@ -145,20 +166,16 @@ loadConfig();
             
             try {
                 // Проверяем настройки Telegram
-                if (TELEGRAM_TOKEN === 'YOUR_BOT_TOKEN_HERE' || CHAT_ID === 'YOUR_CHAT_ID_HERE') {
-                    console.warn('⚠️ ВНИМАНИЕ: Не настроен Telegram!');
-                    showFormStatus('Демо-режим: заявка не отправлена. Настройте Telegram в script.js', 'error');
+                if (!TELEGRAM_TOKEN || !CHAT_ID || TELEGRAM_TOKEN === '' || CHAT_ID === '') {
+                    console.warn('⚠️ Демо-режим: Telegram не настроен');
+                    showFormStatus('✓ Демо: заявка принята! (настройте Telegram в config.js)', 'success');
                     
-                    // В демо-режиме показываем успех для теста
                     setTimeout(() => {
                         submitBtn.disabled = false;
                         submitBtn.textContent = originalText;
-                        showFormStatus('✓ Демо: заявка принята! (настройте Telegram)', 'success');
-                        setTimeout(() => {
-                            closeModal();
-                            this.reset();
-                        }, 2000);
-                    }, 1000);
+                        closeModal();
+                        this.reset();
+                    }, 2000);
                     return;
                 }
                 
@@ -255,53 +272,4 @@ loadConfig();
             }
         });
     });
-    
-    // ===== КАРТА =====
-    function renderMap() {
-        const mapContainer = document.getElementById('yandex-map');
-        if (!mapContainer || typeof ymaps === 'undefined') return;
-        
-        const myMap = new ymaps.Map('yandex-map', {
-            center: [58.001401, 56.192074],
-            zoom: 16,
-            controls: ['zoomControl', 'fullscreenControl']
-        });
-        
-        myMap.behaviors.disable('scrollZoom');
-        
-        const myPlacemark = new ymaps.Placemark([58.0105, 56.2294], {
-            hintContent: 'Maden Detailing',
-            balloonContent: 'ул. Строителей, 15'
-        }, {
-            preset: 'islands#redDotIcon'
-        });
-        
-        myMap.geoObjects.add(myPlacemark);
-    }
-    
-    // Загружаем карту, если есть блок
-    if (document.getElementById('yandex-map')) {
-        if (typeof ymaps === 'undefined') {
-            const script = document.createElement('script');
-            script.src = 'https://api-maps.yandex.ru/2.1/?apikey=YOUR_API_KEY&lang=ru_RU';
-            script.onload = () => {
-                ymaps.ready(renderMap);
-            };
-            document.head.appendChild(script);
-        } else {
-            ymaps.ready(renderMap);
-        }
-    }
-    
-    // ===== ПРОВЕРКА НАСТРОЕК ПРИ ЗАГРУЗКЕ =====
-    if (TELEGRAM_TOKEN === 'YOUR_BOT_TOKEN_HERE' || CHAT_ID === 'YOUR_CHAT_ID_HERE') {
-        console.warn('⚠️ Telegram не настроен! Заявки не будут отправляться.');
-        console.log('📝 Инструкция:');
-        console.log('1. Напишите @BotFather в Telegram, создайте бота');
-        console.log('2. Получите токен и вставьте в TELEGRAM_TOKEN');
-        console.log('3. Напишите @userinfobot, получите ваш Chat ID');
-        console.log('4. Вставьте Chat ID в переменную CHAT_ID');
-    } else {
-        console.log('✅ Telegram настроен, заявки будут приходить в бота');
-    }
 });
