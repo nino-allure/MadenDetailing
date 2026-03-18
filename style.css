@@ -120,7 +120,7 @@ nav {
 
 .hero {
     min-height: 100vh;
-    background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)), url('images/hero-bg.jpg') center/cover no-repeat;
+    background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)), url('images/hero.png') center/cover no-repeat;
     display: flex;
     flex-direction: column;
     justify-content: center;
