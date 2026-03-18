@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // ПОЛУЧИТЕ ЗДЕСЬ:
     // 1. Токен бота: https://t.me/BotFather (создайте бота и скопируйте токен)
     // 2. Chat ID: напишите боту @userinfobot и скопируйте ваш ID
-    const TELEGRAM_TOKEN = '8627116730:AAHjtcWbOI7cdLnPxtxA1TCcl9Qs6dH9Ew8';  // Замените на ваш токен
-    const CHAT_ID = '1228800017';           // Замените на ваш Chat ID
+    const TELEGRAM_TOKEN = CONFIG.TELEGRAM_TOKEN;
+    const CHAT_ID = CONFIG.CHAT_ID;
     
     // ===== ЭЛЕМЕНТЫ =====
     const modal = document.getElementById('bookingModal');
