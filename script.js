@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // ПОЛУЧИТЕ ЗДЕСЬ:
     // 1. Токен бота: https://t.me/BotFather (создайте бота и скопируйте токен)
     // 2. Chat ID: напишите боту @userinfobot и скопируйте ваш ID
-    const TELEGRAM_TOKEN = 'YOUR_BOT_TOKEN_HERE';  // Замените на ваш токен
-    const CHAT_ID = 'YOUR_CHAT_ID_HERE';           // Замените на ваш Chat ID
+    const TELEGRAM_TOKEN = '8627116730:AAHjtcWbOI7cdLnPxtxA1TCcl9Qs6dH9Ew8';  // Замените на ваш токен
+    const CHAT_ID = '1228800017';           // Замените на ваш Chat ID
     
     // ===== ЭЛЕМЕНТЫ =====
     const modal = document.getElementById('bookingModal');
@@ -246,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!mapContainer || typeof ymaps === 'undefined') return;
         
         const myMap = new ymaps.Map('yandex-map', {
-            center: [58.0105, 56.2294],
+            center: [58.001401, 56.192074],
             zoom: 16,
             controls: ['zoomControl', 'fullscreenControl']
         });

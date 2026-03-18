@@ -40,6 +40,7 @@ img {
     max-width: 100%;
     height: auto;
     display: block;
+    background-size: cover;
 }
 
 .btn {
@@ -260,7 +261,6 @@ section h2::after {
 
 .work-item img {
     width: 100%;
-    aspect-ratio: 4/3;
     object-fit: cover;
 }
 
@@ -278,9 +278,6 @@ section h2::after {
     background: #000;
 }
 
-.before-after img {
-    aspect-ratio: 1/1;
-}
 
 .before-label, .after-label {
     position: absolute;
@@ -411,13 +408,23 @@ footer {
     width: 36px;
     height: 36px;
     filter: brightness(0) invert(1);
+    background-size: cover;
 }
 
 .copyright {
     text-align: center;
     margin-top: 50px;
     padding-top: 30px;
+    color: var(--text-dim);
     border-top: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+
+footer .credit{
+    margin: 0 auto;
+    text-align: center;
+    margin-top: 50px;
+    padding-top: 30px;
     color: var(--text-dim);
     font-size: 0.9rem;
 }
