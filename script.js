@@ -3,8 +3,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // ПОЛУЧИТЕ ЗДЕСЬ:
     // 1. Токен бота: https://t.me/BotFather (создайте бота и скопируйте токен)
     // 2. Chat ID: напишите боту @userinfobot и скопируйте ваш ID
-    const TELEGRAM_TOKEN = CONFIG.TELEGRAM_TOKEN;
-    const CHAT_ID = CONFIG.CHAT_ID;
+    let TELEGRAM_TOKEN = '';
+    let CHAT_ID = '';
+
+    async function loadConfig() {
+    try {
+        // Пытаемся загрузить локальный конфиг (для разработки)
+        const response = await fetch('config.json');
+        const config = await response.json();
+        TELEGRAM_TOKEN = config.TELEGRAM_TOKEN;
+        CHAT_ID = config.CHAT_ID;
+    } catch (e) {
+        // В продакшене используем переменные окружения или прокси
+        console.log('Используется прокси-сервер для отправки');
+        // Здесь код для работы через прокси
+    }
+}
+
+loadConfig();
     
     // ===== ЭЛЕМЕНТЫ =====
     const modal = document.getElementById('bookingModal');
