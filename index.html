@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Премиальный детейлинг автомобилей | Maden Detailing | Пермь</title>
+    <meta name="description" content="Maden Detailing в Перми: профессиональные услуги детейлинга. Полировка, химчистка, керамика, бронепленка, шумоизоляция. Гарантия результата и премиальные материалы.">
+    <meta name="keywords" content="детейлинг пермь, детейлинг студия, полировка кузова, химчистка салона, керамическое покрытие, бронепленка, шумоизоляция авто, gyeon, meguairs, koch chemie">
+    <meta name="author" content="Maden Detailing">
+
+    <meta property="og:title" content="Maden Detailing – Премиальный детейлинг в Перми">
+    <meta property="og:description" content="Вернем автомобилю идеальный внешний вид. Более 1500 проектов, 10+ лет опыта.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://maden-detailing.ru">
+    <meta property="og:image" content="images/madenlogo.svg">
+    <meta property="og:locale" content="ru_RU">
+
+    <link rel="canonical" href="https://maden-detailing.ru">
+
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="./images/madenlogo.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="modal-overlay" id="bookingModal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h3>Запись на детейлинг</h3>
+            <form id="bookingForm">
+                <input type="text" name="name" placeholder="Ваше имя" required>
+                <input type="tel" name="phone" placeholder="Номер телефона" required>
+                <select name="service" required>
+                    <option value="" disabled selected>Выберите услугу</option>
+                    <option value="Полировка кузова">Полировка кузова</option>
+                    <option value="Химчистка салона">Химчистка салона</option>
+                    <option value="Керамическое покрытие">Керамическое покрытие</option>
+                    <option value="Бронеплёнка">Бронеплёнка</option>
+                    <option value="Шумоизоляция">Шумоизоляция</option>
+                    <option value="Перетяжка салона">Перетяжка салона</option>
+                </select>
+                <input type="text" name="car" placeholder="Марка и модель авто">
+                <textarea name="notes" placeholder="Ваши пожелания (необязательно)" rows="3"></textarea>
+                <button type="submit" class="btn primary" id="submitBtn">Отправить заявку</button>
+            </form>
+            <div class="form-status" id="formStatus"></div>
+        </div>
+    </div>
+
+    <div class="hero">
+        <nav>
+            <img src="images/madenlogo.svg" class="nav_logo" alt="Maden Detailing логотип">
+            <div class="nav_links">
+                <a href="#services">Услуги</a>
+                <a href="#works">Работы</a>
+                <a href="#reviews">Отзывы</a>
+                <a href="#contacts">Контакты</a>
+            </div>
+            <div class="sign_up_btn">
+                <a href="#" class="btn primary open-modal">Записаться</a>
+            </div>
+        </nav>
+
+        <header>
+            <h1>Премиальный детейлинг автомобилей в <mark>Перми</mark></h1>
+            <p>Полировка, химчистка и защитные покрытия. Вернем автомобилю идеальный внешний вид</p>
+            <div class="hero-btns">
+                <div class="sign_up_btn">
+                    <a href="#" class="btn primary open-modal">Записаться</a>
+                </div>
+                <div class="works-btn">
+                    <a href="#works" class="btn secondary">Наши работы</a>
+                </div>
+            </div>
+        </header>
+
+        <div class="advantages">
+            <h4>✓ Гарантия результата</h4>
+            <h4>✓ Премиальные материалы (Gyeon, Koch)</h4>
+            <h4>✓ Более 10 лет опыта</h4>
+        </div>
+    </div>
+
+    <section class="services" id="services">
+        <h2>Наши услуги</h2>
+        <div class="article-container">
+            <article>
+                <h3>Полировка кузова</h3>
+                <p>Восстановление ЛКП, удаление царапин и голограмм. Придаем глубокий блеск и защитные свойства.</p>
+            </article>
+            <article>
+                <h3>Химчистка салона</h3>
+                <p>Глубокая чистка всех элементов салона, удаление запахов, пятен и бактерий. Безвредные средства.</p>
+            </article>
+            <article>
+                <h3>Керамическое покрытие</h3>
+                <p>Долговременная защита кузова от внешних воздействий. Гидрофобный эффект и стойкость к царапинам.</p>
+            </article>
+            <article>
+                <h3>Установка бронепленки</h3>
+                <p>Защита кузова от сколов и царапин. Полиуретановые пленки премиум-класса для любых поверхностей.</p>
+            </article>
+            <article>
+                <h3>Шумоизоляция (ШВИ)</h3>
+                <p>Комфорт и тишина в салоне. Эффективная защита от шума колес, двигателя и встречного потока.</p>
+            </article>
+            <article>
+                <h3>Перетяжка элементов</h3>
+                <p>Обновление интерьера. Перетяжка руля, сидений и других элементов качественной кожей и алькантарой.</p>
+            </article>
+        </div>
+        <div class="section-btn">
+            <a href="#" class="btn primary open-modal">Узнать точную цену</a>
+        </div>
+    </section>
+
+    <section class="works" id="works">
+        <h2>Примеры работ</h2>
+        <div class="article-container works-grid">
+            <article class="work-item before-after">
+                <img src="images/before-1.jpg" alt="Состояние салона до химчистки" loading="lazy">
+                <img src="images/after-1.jpg" alt="Состояние салона после химчистки" loading="lazy">
+                <span class="before-label">До</span>
+                <span class="after-label">После</span>
+            </article>
+            <article class="work-item">
+                <img src="images/polishing-1.jpg" alt="Полировка кузова автомобиля" loading="lazy">
+                <p>Полировка кузова</p>
+            </article>
+            <article class="work-item before-after">
+                <img src="images/before-2.jpg" alt="Подкапотное пространство до чистки" loading="lazy">
+                <img src="images/after-2.jpg" alt="Подкапотное пространство после чистки" loading="lazy">
+                <span class="before-label">До</span>
+                <span class="after-label">После</span>
+            </article>
+            <article class="work-item">
+                <img src="images/film-1.jpg" alt="Оклейка автомобиля бронепленкой" loading="lazy">
+                <p>Оклейка бронепленкой</p>
+            </article>
+            <article class="work-item">
+                <img src="images/ceramic-1.jpg" alt="Нанесение керамического покрытия" loading="lazy">
+                <p>Керамическое покрытие</p>
+            </article>
+            <article class="work-item before-after">
+                <img src="images/before-3.jpg" alt="Диски до обработки" loading="lazy">
+                <img src="images/after-3.jpg" alt="Диски после обработки" loading="lazy">
+                <span class="before-label">До</span>
+                <span class="after-label">После</span>
+            </article>
+        </div>
+        <div class="section-btn">
+            <a href="#" class="btn secondary">Смотреть портфолио</a>
+        </div>
+    </section>
+
+    <section class="reviews" id="reviews">
+        <h2>Отзывы клиентов</h2>
+        <div class="reviews-slider">
+            <div class="review-item">
+                <img src="images/avatar-1.jpg" alt="Аватар пользователя Александр Петров" class="review-avatar" loading="lazy">
+                <h4>Александр Петров</h4>
+                <p class="review-car">Porsche Cayenne</p>
+                <p class="review-text">«Сделали керамику и тонировку. Работа на высшем уровне, видно, что мастера своего дела. Машина блестит как новая уже полгода!»</p>
+            </div>
+            <div class="review-item">
+                <img src="images/avatar-2.jpg" alt="Аватар пользователя Дмитрий Соколов" class="review-avatar" loading="lazy">
+                <h4>Дмитрий Соколов</h4>
+                <p class="review-car">BMW X5</p>
+                <p class="review-text">«Заказывал комплексную химчистку салона и мойку двигателя. Очень доволен, все идеально чисто, убрали запах. Спасибо!»</p>
+            </div>
+            <div class="review-item">
+                <img src="images/avatar-3.jpg" alt="Аватар пользователя Иван Морозов" class="review-avatar" loading="lazy">
+                <h4>Иван Морозов</h4>
+                <p class="review-car">Mercedes-Benz E-Class</p>
+                <p class="review-text">«Оклеил капот и передний бампер пленкой. Ребята сделали все аккуратно, без пузырей. Теперь не боюсь сколов в дороге.»</p>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contacts">
+        <h2>Контакты</h2>
+        <div class="footer-nav">
+            <img src="images/madenlogo.svg" class="nav_logo" alt="Maden Detailing логотип">
+            <div class="nav_links">
+                <a href="#services">Услуги</a>
+                <a href="#works">Работы</a>
+                <a href="#reviews">Отзывы</a>
+                <a href="#contacts">Контакты</a>
+            </div>
+            <div class="sign_up_btn">
+                <a href="#" class="btn primary open-modal">Записаться</a>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="contact-info">
+                <p><strong>Адрес:</strong> г. Пермь, ул. Строителей, 15</p>
+                <p><strong>Телефон:</strong> <a href="tel:+79990000000">+7 (999) 000-00-00</a></p>
+                <p><strong>Email:</strong> <a href="mailto:info@maden-detailing.ru">info@maden-detailing.ru</a></p>
+                <p><strong>Режим работы:</strong> Ежедневно, с 10:00 до 21:00</p>
+            </div>
+            <div class="map">
+                <div id="yandex-map" style="width: 100%; height: 250px; background: #2a2a2a; border-radius: 8px;"></div>
+            </div>
+            <div class="social-links">
+                <h4>Мы в соцсетях</h4>
+                <a href="#" target="_blank"><img src="images/icons/vk.svg" alt="Вконтакте"></a>
+                <a href="#" target="_blank"><img src="images/icons/telegram.svg" alt="Telegram"></a>
+                <a href="#" target="_blank"><img src="images/icons/whatsapp.svg" alt="WhatsApp"></a>
+            </div>
+        </div>
+        <p class="copyright">© 2026 Maden Detailing. Все права защищены.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
