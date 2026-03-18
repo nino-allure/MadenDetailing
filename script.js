@@ -11,66 +11,38 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===== ЗАГРУЗКА КОНФИГА =====
     let TELEGRAM_TOKEN = '';
     let CHAT_ID = '';
-    let configLoaded = false;
 
-    async function loadConfig() {
+    // Загружаем конфиг
+    function loadConfig() {
         try {
-            // Пытаемся загрузить config.js (он уже загружен как скрипт)
-            if (typeof CONFIG !== 'undefined') {
+            if (typeof CONFIG !== 'undefined' && CONFIG.TELEGRAM_TOKEN) {
                 TELEGRAM_TOKEN = CONFIG.TELEGRAM_TOKEN;
                 CHAT_ID = CONFIG.CHAT_ID;
-                configLoaded = true;
-                console.log('✅ Конфиг загружен из глобальной переменной');
+                console.log('✅ Конфиг загружен');
+                console.log('Chat ID:', CHAT_ID);
+                console.log('Token starts with:', TELEGRAM_TOKEN.substring(0, 10) + '...');
+                return true;
             } else {
-                // Пробуем загрузить config.json
-                const response = await fetch('config.json');
-                const config = await response.json();
-                TELEGRAM_TOKEN = config.TELEGRAM_TOKEN;
-                CHAT_ID = config.CHAT_ID;
-                configLoaded = true;
-                console.log('✅ Конфиг загружен из config.json');
+                console.warn('⚠️ CONFIG не найден');
+                return false;
             }
         } catch (e) {
-            console.warn('⚠️ Конфиг не загружен, используется демо-режим');
-            console.log('📝 Создайте config.js или config.json с вашими токенами');
+            console.error('Ошибка загрузки конфига:', e);
+            return false;
         }
     }
 
-    // Загружаем конфиг перед инициализацией
-    (async function init() {
-        await loadConfig();
-        
-        // Проверяем настройки после загрузки
-        if (!TELEGRAM_TOKEN || !CHAT_ID || TELEGRAM_TOKEN === '' || CHAT_ID === '') {
-            console.warn('⚠️ Telegram не настроен! Заявки не будут отправляться.');
-            console.log('📝 Инструкция:');
-            console.log('1. Напишите @BotFather в Telegram, создайте бота');
-            console.log('2. Получите токен и вставьте в config.js');
-            console.log('3. Напишите @userinfobot, получите ваш Chat ID');
-        } else {
-            console.log('✅ Telegram настроен, заявки будут приходить в бота');
-        }
-    })();
+    loadConfig();
     
     // ===== МОДАЛЬНОЕ ОКНО =====
     function openModal() {
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
-        
-        // Трекинг открытия формы
-        console.log('📊 Цель: Открытие формы записи');
-        if (typeof gtag !== 'undefined') {
-            gtag('event', 'open_booking_form', {
-                'event_category': 'engagement',
-                'event_label': 'header_button'
-            });
-        }
     }
     
     function closeModal() {
         modal.style.display = 'none';
         document.body.style.overflow = '';
-        // Скрываем статус при закрытии
         if (formStatus) {
             formStatus.style.display = 'none';
             formStatus.className = 'form-status';
@@ -96,33 +68,46 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // ===== ОТПРАВКА В TELEGRAM =====
     async function sendToTelegram(formData) {
-        const message = `
-🔔 <b>НОВАЯ ЗАЯВКА MADEN DETAILING</b>
+        const message = `🔔 НОВАЯ ЗАЯВКА MADEN DETAILING
 ━━━━━━━━━━━━━━━
-👤 <b>Имя:</b> ${formData.name}
-📞 <b>Телефон:</b> ${formData.phone}
-🚗 <b>Авто:</b> ${formData.car || 'Не указано'}
-🔧 <b>Услуга:</b> ${formData.service}
-📝 <b>Пожелания:</b> ${formData.notes || '—'}
+👤 Имя: ${formData.name}
+📞 Телефон: ${formData.phone}
+🚗 Авто: ${formData.car || 'Не указано'}
+🔧 Услуга: ${formData.service}
+📝 Пожелания: ${formData.notes || '—'}
 ━━━━━━━━━━━━━━━
-🕐 ${new Date().toLocaleString('ru-RU')}
-        `;
-        
+🕐 ${new Date().toLocaleString('ru-RU')}`;
+
         const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
         
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                chat_id: CHAT_ID,
-                text: message,
-                parse_mode: 'HTML'
-            })
-        });
+        console.log('Отправка запроса в Telegram...');
+        console.log('URL:', url.replace(TELEGRAM_TOKEN, 'HIDDEN'));
         
-        return response.json();
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: CHAT_ID,
+                    text: message,
+                    parse_mode: 'HTML'
+                })
+            });
+            
+            const data = await response.json();
+            console.log('Ответ от Telegram:', data);
+            
+            if (!data.ok) {
+                throw new Error(data.description || 'Ошибка отправки');
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('Ошибка при отправке:', error);
+            throw error;
+        }
     }
     
     // ===== ВАЛИДАЦИЯ ТЕЛЕФОНА =====
@@ -139,7 +124,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Собираем данные
             const name = this.name.value.trim();
             const phone = this.phone.value.trim();
-            const service = this.service.options[this.service.selectedIndex].text;
+            const serviceSelect = this.service;
+            const service = serviceSelect.options[serviceSelect.selectedIndex]?.text || '';
             const car = this.car.value.trim();
             const notes = this.notes.value.trim();
             
@@ -154,8 +140,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            if (!service) {
+            if (!service || service === 'Выберите услугу') {
                 showFormStatus('Выберите услугу', 'error');
+                return;
+            }
+            
+            // Проверка токена
+            if (!TELEGRAM_TOKEN || TELEGRAM_TOKEN === '') {
+                showFormStatus('Ошибка: Telegram не настроен', 'error');
+                console.error('TELEGRAM_TOKEN не задан');
                 return;
             }
             
@@ -165,48 +158,36 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.textContent = 'Отправка...';
             
             try {
-                // Проверяем настройки Telegram
-                if (!TELEGRAM_TOKEN || !CHAT_ID || TELEGRAM_TOKEN === '' || CHAT_ID === '') {
-                    console.warn('⚠️ Демо-режим: Telegram не настроен');
-                    showFormStatus('✓ Демо: заявка принята! (настройте Telegram в config.js)', 'success');
-                    
-                    setTimeout(() => {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = originalText;
-                        closeModal();
-                        this.reset();
-                    }, 2000);
-                    return;
-                }
+                showFormStatus('Отправка...', 'info');
                 
-                // Отправка в Telegram
                 const result = await sendToTelegram({
                     name, phone, service, car, notes
                 });
                 
                 if (result.ok) {
-                    // Трекинг успешной отправки
-                    console.log('📊 Конверсия: Отправка формы', service);
-                    if (typeof gtag !== 'undefined') {
-                        gtag('event', 'form_submit_success', {
-                            'event_category': 'conversion',
-                            'event_label': service
-                        });
-                    }
-                    
                     showFormStatus('✓ Заявка отправлена! Мы свяжемся с вами', 'success');
                     
-                    // Закрываем форму через 2 секунды
                     setTimeout(() => {
                         closeModal();
                         this.reset();
                     }, 2000);
-                } else {
-                    throw new Error(result.description || 'Ошибка отправки');
                 }
             } catch (error) {
-                console.error('Ошибка:', error);
-                showFormStatus('❌ Ошибка отправки. Попробуйте позже', 'error');
+                console.error('Детали ошибки:', error);
+                
+                // Понятное сообщение пользователю
+                let errorMessage = '❌ Ошибка отправки. ';
+                if (error.message.includes('bot was blocked')) {
+                    errorMessage = '❌ Бот заблокирован. Обновите токен.';
+                } else if (error.message.includes('bot token')) {
+                    errorMessage = '❌ Неверный токен. Обновите токен.';
+                } else if (error.message.includes('chat not found')) {
+                    errorMessage = '❌ Неверный Chat ID. Проверьте настройки.';
+                } else {
+                    errorMessage += 'Попробуйте позже.';
+                }
+                
+                showFormStatus(errorMessage, 'error');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
@@ -221,7 +202,6 @@ document.addEventListener('DOMContentLoaded', function() {
             formStatus.className = 'form-status ' + type;
             formStatus.style.display = 'block';
             
-            // Автоматически скрыть через 5 секунд
             setTimeout(() => {
                 formStatus.style.display = 'none';
             }, 5000);
