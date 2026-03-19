@@ -8,32 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const formStatus = document.getElementById('formStatus');
     const navLinks = document.querySelectorAll('.nav_links a, .footer-nav .nav_links a, .works-btn a[href^="#"]');
     
-    // ===== ЗАГРУЗКА КОНФИГА =====
-    let TELEGRAM_TOKEN = '';
-    let CHAT_ID = '';
-
-    // Загружаем конфиг
-    function loadConfig() {
-        try {
-            if (typeof CONFIG !== 'undefined' && CONFIG.TELEGRAM_TOKEN) {
-                TELEGRAM_TOKEN = CONFIG.TELEGRAM_TOKEN;
-                CHAT_ID = CONFIG.CHAT_ID;
-                console.log('✅ Конфиг загружен');
-                console.log('Chat ID:', CHAT_ID);
-                console.log('Token starts with:', TELEGRAM_TOKEN.substring(0, 10) + '...');
-                return true;
-            } else {
-                console.warn('⚠️ CONFIG не найден');
-                return false;
-            }
-        } catch (e) {
-            console.error('Ошибка загрузки конфига:', e);
-            return false;
-        }
-    }
-
-    loadConfig();
-    
     // ===== МОДАЛЬНОЕ ОКНО =====
     function openModal() {
         modal.style.display = 'flex';
@@ -66,8 +40,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // ===== ОТПРАВКА В TELEGRAM =====
-    async function sendToTelegram(formData) {
+    // ===== ВАЛИДАЦИЯ ТЕЛЕФОНА =====
+    function validatePhone(phone) {
+        const phoneRegex = /^[\d\s\+\-\(\)]{10,20}$/;
+        return phoneRegex.test(phone.replace(/\s/g, ''));
+    }
+    
+    // ===== ОТПРАВКА ЧЕРЕЗ ПРОКСИ =====
+    async function sendViaProxy(formData) {
+        // Используем публичный CORS-прокси (временное решение)
+        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+        const targetUrl = 'https://api.telegram.org/bot8627116730:AAHjtcWbOI7cdLnPxtxA1TCcl9Qs6dH9Ew8/sendMessage';
+        
         const message = `🔔 НОВАЯ ЗАЯВКА MADEN DETAILING
 ━━━━━━━━━━━━━━━
 👤 Имя: ${formData.name}
@@ -78,42 +62,20 @@ document.addEventListener('DOMContentLoaded', function() {
 ━━━━━━━━━━━━━━━
 🕐 ${new Date().toLocaleString('ru-RU')}`;
 
-        const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+        const response = await fetch(proxyUrl + targetUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Origin': window.location.origin
+            },
+            body: JSON.stringify({
+                chat_id: '1228800017',
+                text: message,
+                parse_mode: 'HTML'
+            })
+        });
         
-        console.log('Отправка запроса в Telegram...');
-        console.log('URL:', url.replace(TELEGRAM_TOKEN, 'HIDDEN'));
-        
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    chat_id: CHAT_ID,
-                    text: message,
-                    parse_mode: 'HTML'
-                })
-            });
-            
-            const data = await response.json();
-            console.log('Ответ от Telegram:', data);
-            
-            if (!data.ok) {
-                throw new Error(data.description || 'Ошибка отправки');
-            }
-            
-            return data;
-        } catch (error) {
-            console.error('Ошибка при отправке:', error);
-            throw error;
-        }
-    }
-    
-    // ===== ВАЛИДАЦИЯ ТЕЛЕФОНА =====
-    function validatePhone(phone) {
-        const phoneRegex = /^[\d\s\+\-\(\)]{10,20}$/;
-        return phoneRegex.test(phone.replace(/\s/g, ''));
+        return response.json();
     }
     
     // ===== ОБРАБОТКА ФОРМЫ =====
@@ -124,8 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Собираем данные
             const name = this.name.value.trim();
             const phone = this.phone.value.trim();
-            const serviceSelect = this.service;
-            const service = serviceSelect.options[serviceSelect.selectedIndex]?.text || '';
+            const service = this.service.options[this.service.selectedIndex]?.text || '';
             const car = this.car.value.trim();
             const notes = this.notes.value.trim();
             
@@ -145,13 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Проверка токена
-            if (!TELEGRAM_TOKEN || TELEGRAM_TOKEN === '') {
-                showFormStatus('Ошибка: Telegram не настроен', 'error');
-                console.error('TELEGRAM_TOKEN не задан');
-                return;
-            }
-            
             // Блокируем кнопку
             const originalText = submitBtn.textContent;
             submitBtn.disabled = true;
@@ -160,9 +114,12 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 showFormStatus('Отправка...', 'info');
                 
-                const result = await sendToTelegram({
+                // Используем прокси для отправки
+                const result = await sendViaProxy({
                     name, phone, service, car, notes
                 });
+                
+                console.log('Результат:', result);
                 
                 if (result.ok) {
                     showFormStatus('✓ Заявка отправлена! Мы свяжемся с вами', 'success');
@@ -171,23 +128,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         closeModal();
                         this.reset();
                     }, 2000);
+                } else {
+                    throw new Error(result.description || 'Ошибка отправки');
                 }
             } catch (error) {
-                console.error('Детали ошибки:', error);
-                
-                // Понятное сообщение пользователю
-                let errorMessage = '❌ Ошибка отправки. ';
-                if (error.message.includes('bot was blocked')) {
-                    errorMessage = '❌ Бот заблокирован. Обновите токен.';
-                } else if (error.message.includes('bot token')) {
-                    errorMessage = '❌ Неверный токен. Обновите токен.';
-                } else if (error.message.includes('chat not found')) {
-                    errorMessage = '❌ Неверный Chat ID. Проверьте настройки.';
-                } else {
-                    errorMessage += 'Попробуйте позже.';
-                }
-                
-                showFormStatus(errorMessage, 'error');
+                console.error('Ошибка:', error);
+                showFormStatus('❌ Ошибка отправки. Попробуйте позже', 'error');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
